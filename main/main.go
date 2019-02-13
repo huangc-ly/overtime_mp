@@ -9,7 +9,8 @@ import (
 
 func initRouter() *gin.Engine {
 	router := gin.Default()
-	router.POST("/record", AddRecordApi)
+	router.POST("/AddRecord", AddRecordApi)
+	router.POST("/ModifyRecord", ModifyRecordApi)
 	return router
 }
 
