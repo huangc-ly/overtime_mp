@@ -26,7 +26,7 @@ func (p *OvertimeRecord) AddOvertimeRecord() (err error) {
 		_, err := db.SqlDB.Exec("INSERT INTO overtime_record(user_name, start_time, description, status, finish_time) VALUES (?, ?, ?, ?, ?)", p.UserName, p.StartTimestamp, p.Description, 1, 0)
 		checkErr(err)
 	} else if p.RecordType == 0 { //首先找到用户当前未关闭加班记录
-		rows, err := db.SqlDB.Query("SELECT id FROM overtime_record WHRER user_name=? AND status=?", p.UserName, 1)
+		rows, err := db.SqlDB.Query("SELECT id FROM overtime_record WHERE user_name=? AND status=?", p.UserName, 1)
 		checkErr(err)
 		defer rows.Close()
 		var id int64
