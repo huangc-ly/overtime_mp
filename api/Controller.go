@@ -2,7 +2,6 @@ package api
 
 import (
 	m "WorkaholicSrv/model"
-	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -18,17 +17,28 @@ func checkErr(err error) {
 
 func AddRecordApi(c *gin.Context) {
 	username := c.Request.FormValue("name")
-	timestamp, err := strconv.ParseInt(c.Request.FormValue("time"), 10, 64)
+	timestamp, err := strconv.ParseInt(c.Request.FormValue("start_time"), 10, 64)
+	recordtype, err := strconv.Atoi(c.Request.FormValue("type"))
+	desc := c.Request.FormValue("description")
+
+	or := m.OvertimeRecord{UserName: username, StartTimestamp: timestamp, RecordType: recordtype, Description: desc}
+	err = or.AddOvertimeRecord()
+	checkErr(err)
+
+	c.JSON(http.StatusOK, gin.H{
+		"msg": "Insert Success",
+	})
+}
+
+func ModifyRecordApi(c *gin.Context) {
+	username := c.Request.FormValue("name")
+	timestamp, err := strconv.ParseInt(c.Request.FormValue("finish_time"), 10, 64)
 	recordtype, err := strconv.Atoi(c.Request.FormValue("type"))
 
-	fmt.Println(username)
-	fmt.Println(timestamp)
-	fmt.Println(recordtype)
-	or := m.OvertimeRecord{UserName: username, Timestamp: timestamp, RecordType: recordtype}
-	ra, err := or.AddRecord()
+	or := m.OvertimeRecord{UserName: username, FinishTimestamp: timestamp, RecordType: recordtype}
+	err = or.AddOvertimeRecord()
 	checkErr(err)
-	msg := fmt.Sprintf("Insert success %d", ra)
 	c.JSON(http.StatusOK, gin.H{
-		"msg": msg,
+		"msg": "Insert Success",
 	})
 }

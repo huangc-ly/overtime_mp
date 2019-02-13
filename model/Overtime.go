@@ -3,13 +3,14 @@ package model
 import (
 	db "WorkaholicSrv/database"
 	"log"
-	"fmt"
 )
 
 type OvertimeRecord struct {
-	UserName   string `json:"name"`
-	Timestamp  int64  `json:"time"`
-	RecordType int    `json:"type"`
+	UserName        string `json:"name"`
+	StartTimestamp  int64  `json:"start_time"`
+	RecordType      int    `json:"type"`
+	FinishTimestamp int64  `json:"finish_time"`
+	Description     string `json:"description"`
 }
 
 func checkErr(err error) {
@@ -19,21 +20,23 @@ func checkErr(err error) {
 	}
 }
 
-func (p *OvertimeRecord) AddRecord() (id int64, err error) {
+func (p *OvertimeRecord) AddOvertimeRecord() (err error) {
 
-	if db.SqlDB == nil {
-		fmt.Println("db.SqlDB nil")
-		return
-	}
-	stmt, err := db.SqlDB.Prepare("INSERT INTO work(user_name, time) VALUES (?, ?)")
-	if p.RecordType == 1 {
-		rs, err := stmt.Exec(p.UserName, p.Timestamp)
+	if p.RecordType == 1 { //插入一条加班数据
+		_, err := db.SqlDB.Exec("INSERT INTO overtime_record(user_name, start_time, description, status, finish_time) VALUES (?, ?, ?, ?, ?)", p.UserName, p.StartTimestamp, p.Description, 1, 0)
 		checkErr(err)
-		id, err = rs.LastInsertId()
-	} else if p.RecordType == 0 {
-		rs, err := db.SqlDB.Exec("INSERT INTO offwork(user_name, time) VALUES (?, ?)", p.UserName, p.Timestamp)
+	} else if p.RecordType == 0 { //首先找到用户当前未关闭加班记录
+		rows, err := db.SqlDB.Query("SELECT id FROM overtime_record WHRER user_name=? AND status=?", p.UserName, 1)
 		checkErr(err)
-		id, err = rs.LastInsertId()
+		defer rows.Close()
+		var id int64
+		for rows.Next() {
+			err = rows.Scan(&id)
+			checkErr(err)
+			_, err := db.SqlDB.Exec("UPDATE overtime_record SET finish_time=?, status=? WHERE id=?", p.FinishTimestamp, 0, id)
+			checkErr(err)
+		}
 	}
+
 	return
 }
