@@ -42,3 +42,13 @@ func ModifyRecordApi(c *gin.Context) {
 		"msg": "Insert Success",
 	})
 }
+
+func GetRecordsApi(c *gin.Context) {
+	username := c.Request.FormValue("name")
+	or := m.OvertimeRecord{UserName: username}
+	records, err := or.GetOvertimeRecords()
+	checkErr(err)
+	c.JSON(http.StatusOK, gin.H{
+		"records": records,
+	})
+}

@@ -40,3 +40,19 @@ func (p *OvertimeRecord) AddOvertimeRecord() (err error) {
 
 	return
 }
+
+func (p *OvertimeRecord) GetOvertimeRecords() (records []OvertimeRecord, err error) {
+
+	records = make([]OvertimeRecord, 0)
+
+	rows, err := db.SqlDB.Query("SELECT id FROM overtime_record WHERE user_name=? AND status=?", p.UserName, 0)
+	checkErr(err)
+	defer rows.Close()
+	var r OvertimeRecord
+	for rows.Next() {
+		err = rows.Scan(&r.StartTimestamp, &r.FinishTimestamp, &r.Description)
+		checkErr(err)
+		records = append(records, r)
+	}
+	return
+}
