@@ -45,7 +45,7 @@ func (p *OvertimeRecord) GetOvertimeRecords() (records []OvertimeRecord, err err
 
 	records = make([]OvertimeRecord, 0)
 
-	rows, err := db.SqlDB.Query("SELECT id FROM overtime_record WHERE user_name=? AND status=?", p.UserName, 0)
+	rows, err := db.SqlDB.Query("SELECT start_time, finish_time, description FROM overtime_record WHERE user_name=? AND status=?", p.UserName, 0)
 	checkErr(err)
 	defer rows.Close()
 	var r OvertimeRecord
